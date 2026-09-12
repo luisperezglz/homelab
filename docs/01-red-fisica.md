@@ -14,7 +14,7 @@ Montar el cableado estructurado del rack con conexiones Gigabit estables y confi
 
 - **Patch panel:** Cat6 keystone, montado en rack Tecmojo
 - **Switch:** TP-Link TL-SG108E (V6.0) — 8 puertos Gigabit, administrable
-- **Cableado:** ⚠️ COMPLETAR (categoría y longitud aproximada de los cables usados, ej. "patch cords Cat6 de X metros")
+- **Cableado:** Patch cords UTP Cat6 prefabricados de fábrica, 30 cm, marca Enson (100% cobre)
 
 ---
 
@@ -28,20 +28,16 @@ Uno de los enlaces del lab negociaba a **10 Mbps** en lugar de **1000 Mbps (1 Gb
 
 ### Diagnóstico
 
-⚠️ COMPLETAR con lo que hiciste exactamente. Estructura sugerida:
-
-1. **Aislamiento del problema:** se hizo un *bypass* del patch panel (conexión directa equipo–switch) para determinar si el problema estaba en el patch panel o en el cable/equipo.
-2. **Resultado del bypass:** ⚠️ COMPLETAR (¿al saltarte el patch panel el enlace subió a 1 Gbps? Eso confirmaría que el problema estaba en la terminación del keystone).
+1. **Aislamiento del problema:** se sospechó del cable patch cord en uso y se reemplazó por uno nuevo (prefabricado) conectado directamente equipo–switch, para descartar el patch panel, el switch y el equipo como causa.
+2. **Resultado del cambio:** al sustituir el cable, el enlace subió de inmediato a **1000M Full**. Esto aisló el problema al cable en sí — no al patch panel, al switch ni al equipo.
 
 ### Causa raíz
 
-⚠️ COMPLETAR — ¿cuál resultó ser el problema exacto?
-Ejemplos comunes: un keystone mal ponchado, un par abierto/cruzado en la terminación, un conector defectuoso.
+Uno de los patch cords en uso tenía una **terminación defectuosa** (mal ponchado en los conectores RJ45), lo que provocaba que el enlace hiciera *fallback* a 10 Mbps.
 
 ### Solución aplicada
 
-⚠️ COMPLETAR — ¿qué hiciste para corregirlo?
-Ejemplos: reponchar el keystone siguiendo el código de colores T568B, reemplazar el módulo, recrimpar el conector.
+Se reemplazaron los cables sospechosos por **patch cords Cat6 prefabricados de fábrica** (Enson, 30 cm, 100% cobre), eliminando el riesgo de una mala terminación manual.
 
 ### Verificación (evidencia)
 
@@ -61,7 +57,8 @@ port 2  Enable   1000M Full     1988405      0          136111       0
 
 - Un enlace que "funciona" no necesariamente está a la velocidad correcta: **siempre verificar la velocidad negociada**, no solo la conectividad.
 - El *fallback* a 10/100 Mbps es señal casi segura de un problema físico en el cableado (par abierto o mala terminación), no de configuración.
-- Técnica de diagnóstico clave: **aislar por bypass** — quitar componentes de la cadena uno a uno (patch panel → cable → equipo) para localizar el punto de falla.
+- Técnica de diagnóstico clave: **aislar por sustitución** — cambiar un componente sospechoso (en este caso, el cable) por uno nuevo para confirmar o descartar la causa.
+- Preferir patch cords **prefabricados de fábrica** sobre cables ponchados a mano reduce el riesgo de terminaciones defectuosas.
 - La herramienta **Cable Test** del switch y las estadísticas de puerto (`Bad Packets`) son aliadas para validar la capa física.
 
 ---
