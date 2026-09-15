@@ -38,8 +38,10 @@ El objetivo no es solo "que funcione", sino documentar el **porqué** de cada de
                  ┌─────────────────┼─────────────────┐
                  │                 │                 │
           [ Proxmox host ]   [ Raspberry Pi 5 ]  [ VMs futuras ]
-          (ThinkCentre)      (Pi-hole ✅,        (Docker, k8s…)
-                              Ansible planeado)
+          (ThinkCentre)      (Pi-hole ✅,        (k8s, monitoreo…)
+           ├─ OPNsense        Docker ✅)
+           └─ ansible-control
+              (Ansible ✅, 10.10.10.10)
 ```
 
 > La PC de gaming se conecta **directo al router**, fuera del lab, para que ningún experimento afecte la conexión de juego.
@@ -52,7 +54,7 @@ El objetivo no es solo "que funcione", sino documentar el **porqué** de cada de
 | ---------------------- | --------------------------------------------- | ------------------------------ |
 | Host de virtualización | Lenovo ThinkCentre M715q                     | Proxmox VE 9.2                |
 | RAM del host           | 20 GB DDR4 (4 GB + 16 GB, dual-channel flex) | —                              |
-| Nodo secundario        | Raspberry Pi 5                               | Pi-hole ✅, Ansible (planeado) |
+| Nodo secundario        | Raspberry Pi 5                               | Pi-hole ✅, Docker ✅ (nodo multi-servicio) |
 | Switch                 | TP-Link TL-SG108E (V6.0)                     | Switch administrable, VLANs   |
 | Patch panel            | Cat6 keystone (rack Tecmojo)                 | Cableado estructurado         |
 | Adaptador de red       | USB-Ethernet Realtek RTL8153                 | Segunda NIC (WAN de OPNsense) |
@@ -66,8 +68,8 @@ El objetivo no es solo "que funcione", sino documentar el **porqué** de cada de
 - **Firewall / Router:** OPNsense 26.7.3 (FreeBSD)
 - **Servicios de red:** Dnsmasq (DNS + DHCP), VLANs (802.1Q)
 - **Filtrado DNS:** Pi-hole (Raspberry Pi 5)
-- **Automatización (planeado):** Ansible, Terraform
-- **Contenedores (planeado):** Docker, k3s (Kubernetes)
+- **Automatización:** Ansible (nodo de control dedicado en Proxmox) · Terraform (planeado)
+- **Contenedores:** Docker + Compose en la Raspberry Pi · k3s (planeado)
 - **Observabilidad (planeado):** Grafana, Prometheus
 - **Seguridad (planeado):** Suricata (IDS), WireGuard (VPN), Wazuh (SIEM)
 
@@ -84,7 +86,8 @@ El objetivo no es solo "que funcione", sino documentar el **porqué** de cada de
 | Segmentación por VLANs             | ✅ Operativa (VLAN 1 WAN/gestión, VLAN 20 LAN)    |
 | DNS/DHCP (Dnsmasq)                 | ✅ Operativo — único servicio en el puerto 53     |
 | Pi-hole (filtrado DNS)             | ✅ Operativo — verificado con pruebas reales      |
-| Ansible en Raspberry Pi            | 🔲 Planeado                                       |
+| Nodo de control Ansible (VM 101)   | ✅ Operativo — `10.10.10.10`, SSH por llave       |
+| Docker en Raspberry Pi             | ✅ Desplegado vía playbook de Ansible             |
 
 ---
 
@@ -97,14 +100,16 @@ El objetivo no es solo "que funcione", sino documentar el **porqué** de cada de
 | [docs/03-opnsense.md](https://github.com/luisperezglz/homelab/blob/main/docs/03-opnsense.md)                         | Despliegue del firewall: WAN/LAN, doble NAT, DNS                   |
 | [docs/04-vlans.md](https://github.com/luisperezglz/homelab/blob/main/docs/04-vlans.md)                               | Segmentación por VLANs (WAN/gestión y LAN protegida)               |
 | [docs/06-pihole.md](https://github.com/luisperezglz/homelab/blob/main/docs/06-pihole.md)                             | Pi-hole: filtrado DNS a nivel de red y forwarding desde OPNsense   |
+| [docs/07-ansible-docker.md](https://github.com/luisperezglz/homelab/blob/main/docs/07-ansible-docker.md)             | Nodo de control Ansible y despliegue de Docker en la Pi (IaC)      |
+| [ansible/](https://github.com/luisperezglz/homelab/tree/main/ansible)                                                | Inventario y playbooks de Ansible                                  |
 | [docs/red-y-direccionamiento.md](https://github.com/luisperezglz/homelab/blob/main/docs/red-y-direccionamiento.md)   | Tabla de direccionamiento IP e interfaces                         |
 
 ---
 
 ## 🗺️ Roadmap por fases
 
-1. **Automatización base** — Pi-hole ✅ operativo · Ansible en la Raspberry Pi (pendiente) (`CCNA`)
-2. **Servicios sobre Proxmox** — Docker, Portainer, reverse proxy
+1. **Automatización base** — ✅ Pi-hole · ✅ Ansible · ✅ Docker en la Pi (`CCNA`)
+2. **Servicios en contenedores** — primeros stacks con Docker Compose en la Pi, Portainer, reverse proxy
 3. **Observabilidad** — Grafana + Prometheus
 4. **Seguridad** — Suricata, WireGuard, Wazuh
 5. **Kubernetes** — clúster k3s (`CKA`)
